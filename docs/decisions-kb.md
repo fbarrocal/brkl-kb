@@ -1,47 +1,40 @@
 # KB decision log
 
-Why the KB template is shaped the way it is. Before proposing a structural change, check this file. Then check the history it points to: **brkl-pms `docs/decisions-v2.md`**, which covers everything decided while this code lived inside the PMS, and **brkl-pms `docs/handover/`**, the v1.0.1 design record. If a point was already argued and settled there, don't reopen it without new field evidence.
+Why the Knowledge Base template is shaped the way it is. Before proposing a structural change, check this file and `handover/03_decisions.md` (the v1.0.1 record). If a point was already argued and settled, don't reopen it without new field evidence.
 
-History: <https://github.com/fbarrocal/brkl-pms/tree/master/docs>
+## Load-bearing decisions (v1.0 → v1.2)
 
-## Still load-bearing from v1 and v2
+- **Graph over vectors, entirely on Claude.** No external database or embeddings: the graph *is* the markdown, and Claude is both curator and query engine. Accepted cost: not local (content goes to Anthropic), and a ceiling of about 150–200 pages / 50–100k tokens.
+- **Typed edges as per-predicate frontmatter fields**, not a custom `edges:` block — the Obsidian Wikilink Types storage format, so Dataview, Breadcrumbs, Juggl and Graph Link Types read the graph with no plugin dependency.
+- **A static `CLAUDE.md` and two mutable rules files.** `meta/GRAPH_SCHEMA.md` is the vocabulary (it grows and gets diffed); `meta/SETTINGS.md` is configuration (written once). The agent can't corrupt its own rulebook, and an upgrade is a file copy. In v1 a single root `SETTINGS.md` held both.
+- **`curator_notes`** stops dedup and lint from merging pages a human kept apart on purpose. It is respected by tooling and never restated in prose.
+- **Query answers are prose first, plus one `Path:` line** — the compromise between "no metadata narration" (user) and "a bare-prose answer can't be told apart from confabulation" (agent).
+- **Visible `meta/`, not a hidden `.claude/`.** Field test 01 showed Cowork failed to discover skills in a dot-folder.
+- **Folders are named for what they hold:** `raw/` (the inbox; processed sources move to `raw/archive/`) and `knowledge/` (flat; a page's type is a field, not a folder). `knowledge/` is not called `graph/`: the graph is the typed edges between pages, not a folder.
+- **Every edge link resolves to a filename.** Obsidian and every plugin above resolve links by filename, not by title or alias, so pages are named for their title and an archived source is linked `[[<file-stem>|<title>]]`. Checked against the source of Obsidian's API, Dataview, Breadcrumbs 4.22.1, Juggl 1.5.0 and Graph Link Types.
+- **Edge fields are sets** (union on every write, so re-ingesting a corrected source never doubles an edge). **Symmetric predicates are mirrored** on both pages; the `(symmetric)` marker in the schema's inverse column is the trigger, so a new symmetric predicate inherits the rule.
+- **Provenance runs both ways:** `sources:` on a page, `touches:` on a source, and lint checks the round trip. An unsourced page is the shape a fabricated one takes.
+- **Ingest stamps what's missing.** A file dropped in `raw/` usually carries no frontmatter, so ingest adds the bookkeeping fields (and a `.md` sidecar for a binary). That is the only edit ever made to a source.
+- **Lint has three passes** — quick (default, the only one worth scheduling), full, fidelity — and reports by severity, not by check number, with a closing "not run this pass" line and a "what this cannot check" section. The fidelity check samples and must state its sample size.
+- **Old trigger phrases stay** ("revise o KM", "add this to my knowledge base"). A rename is not a reason to stop recognizing what the user actually types.
+- **Embedding the KB inside a host project (v1.1, decision 17) was reversed.** The KB is a top-level folder whose `CLAUDE.md` is the session's rulebook, and it never writes outside that folder.
 
-- **Graph over vectors, entirely on Claude.** The graph *is* the markdown; Claude is both curator and query engine. Accepted cost: not local, a ceiling of about 150–200 pages.
-- **Typed edges as per-predicate frontmatter fields**, so Dataview, Breadcrumbs, Juggl and Graph Link Types read the graph with no plugin dependency.
-- **Static `CLAUDE.md`, two mutable rules files** (`meta/GRAPH_SCHEMA.md` for vocabulary, `meta/SETTINGS.md` for configuration). The agent can't corrupt its own rulebook, and an upgrade is a file copy.
-- **`curator_notes`** stops dedup and lint from merging pages a human kept apart on purpose.
-- **Prose-first answers plus one `Path:` line**, so a traversal can be told apart from a confabulation.
-- **Visible `meta/`**, because Cowork didn't discover skills in a dot-folder (field test 01).
-- **Every edge link resolves to a filename** (brkl-pms v2.1.0). Pages are named for their title; archived sources are linked `[[stem|title]]`.
-- **Lint in three passes** (quick, full, fidelity), reported by severity, with a "what this cannot check" section.
+## v1.2.0 (2026-11-13) — its own repository
 
-## v1.2.0 (2026-11-13) — split out of brkl-pms
+The knowledge base had been developed inside a larger template's repository (a knowledge graph plus a task layer). v1.2.0 took it out as its own template, so projects that need only a knowledge base have one. It shipped with a source/build split — a `core/` with slots and a generated `kb/` — which v1.3.0 removed.
 
-**Decision (Fernando):** the knowledge base becomes its own template and repository again. brkl-pms depends on it instead of containing it. The driver is real: some projects need only a knowledge base, and since brkl-pms v2.4.0 the only template asked for a Todoist connection, a task layer and a sync schedule. There was nowhere left to start a plain KB.
+## v1.3.0 (2026-11-17) — standalone, no build
 
-**How the dependency works: source split, build-time composition.**
+**Decision (Fernando):** this template is independent. Nothing is built from it, it is built from nothing, and it refers to no other project.
 
-- `core/` is the KB with **slots**: marked places an extension may fill. Built alone, it gives `kb/`. brkl-pms vendors the core at a tag, fills the slots with its task layer, and builds `pms/`.
-- *Why at build time rather than at runtime:* a runtime plugin (the core's skills checking "is an extension installed?") would add one more instruction the agent must remember on every operation. Procedure adherence is the least proven thing in this design. Worse, the most dangerous rule in the PMS, that the traversal set is `knowledge/` ∪ `tasks/`, would sit behind that indirection, and getting it wrong fails silently. Built templates stay as explicit as before: one `CLAUDE.md`, every rule inline.
-- *Why not two vaults (the PMS calling the KB):* tasks would leave the graph, which ADR-001 already rejected; Obsidian links don't cross vaults; two rulebooks in one session repeats decision 17's open risk (a nested rulebook leaking into a session that only meant to read).
-- *Why not one template with a "tasks off" flag:* it lets nothing evolve apart. Every KB edit would still happen in files full of Todoist text.
-- *Why two repositories (Fernando's call, over a monorepo recommendation):* the KB gets its own identity, issues and releases. The cost is accepted: a change that touches a slot needs a KB release, then a vendor bump in brkl-pms.
-
-**The split itself was a pure refactor.** Every PMS-only passage of brkl-pms v2.6.1 was cut verbatim into a fill and replaced by a slot whose default is the KB wording (or nothing). The acceptance test: brkl-pms's build from the vendored v1.2.0 core is byte-identical to v2.6.1's `pms/`, except the version line. That passed. It is why there are 180 slots. Many are a few words long, because the PMS text was woven through the shared paragraphs and this version doesn't restructure it.
-
-**Placeholders, not search-and-replace.** The core says `{{SYS}}` / `{{SYSTEM}}` wherever the text names the system, so the same sentence reads "this KB" or "this PMS". Where a sentence needs different words, not just a different name, it's a slot.
-
-**The leak check is the mechanical stale-reference sweep.** `tools/build.py` fails if `kb/` contains task or Todoist vocabulary, the word PMS, or a `conventions` section. It caught three leaks during the split (a task in query's "don't fabricate" line, task fields in lint's prerequisites, "captures" in lint's pass table) and two of its own false positives.
-
-**What the KB build gives up, deliberately:**
-
-- **Scheduled tasks.** The KB never writes outside its folder, as in v1. A weekly lint is a reminder the user sets up, not something setup creates.
-- **The `Conventions` section of `meta/SETTINGS.md`.** Both of its settings (task id prefix, archive window) were task settings.
-- **Sequential lint numbers.** The KB has checks 1–13 and 15–18; #14, #19 and #20 belong to the PMS. Renumbering would break the byte-identical PMS build. The pass tables never listed checks in order anyway.
+- **`core/`, its slots, `core.json` and `tools/` are gone. `kb/` is the only copy and is edited directly.** The slots existed only so another template could share this text. With that sharing ruled out they had no job, and 180 inline markers made the source hard to read. A generated copy also put a build and a check in front of every change, for no gain when every change is deliberate and made by the builder.
+- **Accepted cost:** any template that shares this lineage now evolves separately. A fix made here reaches nothing else, and nothing made elsewhere arrives here, unless someone ports it by hand.
+- **Lint checks renumbered 1–17.** The gaps (14, 19, 20) belonged to checks this template never had.
+- **The v1.0.1 design record was copied into `handover/`,** so this repository needs nothing outside itself.
 
 ## Known gaps
 
-- **Nothing in v1.2.0 has been field-run as a KB-only template.** `field-test-kb.md` is the protocol.
-- **The v1.1 → v1.2 upgrade steps in `kb/README.md` are untested** against a real v1.1 knowledge base.
-- **A fill can go wrong silently when the core text around its slot changes.** The build checks names, not meaning. An extension must read its own build diff after every core bump (see `SLOTS.md`).
-- **180 slots is a lot of fine-grained seams.** The next structural pass should move extension additions into their own sentences and paragraphs so fewer, larger slots do the same job. That changes the PMS build's text, so it needs its own review on the brkl-pms side.
+- **This template has never been field-run.** `field-test-kb.md` is the protocol.
+- **The v1.1 → v1.2+ upgrade steps in `kb/README.md` are untested** against a real v1.1 knowledge base.
+- **Nothing verifies that `CLAUDE.md` or `meta/skills/` were not edited** in an instance — the invariant the design rests on. Git is the current answer.
+- **Procedure adherence is unproven:** discovery of the skills is solved (visible `meta/`); whether the agent follows them step by step, rather than improvising, is not.

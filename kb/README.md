@@ -1,6 +1,6 @@
 # Knowledge Base template
 
-**v1.2.0** — a self-curated knowledge graph in plain markdown. Sources go in; typed, cross-referenced knowledge pages come out; questions are answered by navigating the graph, not by vector search.
+**v1.3.0** — a self-curated knowledge graph in plain markdown. Sources go in; typed, cross-referenced knowledge pages come out; questions are answered by navigating the graph, not by vector search.
 
 ## Quick start (Cowork)
 
@@ -94,7 +94,7 @@ Both tools can share this folder safely: each keeps its session state in its own
 
 ## Upgrading from v1.1.x
 
-v1.2.0 is the same curator with a new layout and two more rounds of hardening: stamping and sidecars for raw files, links that always resolve to a file, and a three-pass lint. To move a v1.1.x knowledge base:
+Since v1.2 this is the same curator with a new layout and two more rounds of hardening: stamping and sidecars for raw files, links that always resolve to a file, and a three-pass lint. To move a v1.1.x knowledge base:
 
 1. Rename `sources/` to `raw/` (processed sources go in `raw/archive/`) and `content/` to `knowledge/`, and fix the `sources:` and `touches:` paths that pointed into the old folders.
 2. Move `meta/index.md` to `meta/GRAPH_INDEX.md`.
