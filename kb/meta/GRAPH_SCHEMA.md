@@ -8,7 +8,7 @@ This is one of exactly two mutable **rules** files (the agent also maintains the
 
 Node types active in this KB. Every page in `knowledge/` declares one in its `type:` field. Ships with two generic defaults: `entity` and `concept`. First-run setup adds KB-specific ones. For each type: its name, what it represents, its fields, and its template file (if any).
 
-- **`entity`** — a specific thing (a person, place, work, object, event). Fields: `title`, `aliases`, `tags`, typed-edge fields, `sources`, `see_also`. Template: none (follows the generic seed `meta/templates/_node.template.md` shape).
+- **`entity`** — a specific thing (a person, place, work, object, event). Fields: `title`, `aliases`, `tags`, typed-edge fields, `sources`, `see_also`, `created`, `updated`, optional `curator_notes`. Template: none (follows the generic seed `meta/templates/_node.template.md` shape).
 - **`concept`** — an idea, theme, or topic. Fields: same as `entity`. Template: none (same seed shape).
 
 <!-- Add KB-specific node types here during setup, e.g.:

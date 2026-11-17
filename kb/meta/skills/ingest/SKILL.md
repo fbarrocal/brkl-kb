@@ -30,8 +30,8 @@ Turn a pending source into curated knowledge: update or create typed node pages,
    - fill type-specific fields only where the source supports them — never fabricate a value to fill a field;
    - bump `updated`.
 8. **Handle conflicts, don't bury them.** If the source contradicts an existing page, add a `contradicts` entry **on both pages** (it is symmetric — see the mirroring rule) and flag it in your report. Never silently overwrite. A contradiction recorded on only one page is invisible to anyone reading the other, which defeats the point of recording it.
-9. **Close the loop on the source.** Set `ingested: true`, fill `touches:` with everything you produced, then **move the file to `raw/archive/`** (create the folder if missing) — binary and sidecar move together as a pair. Never alter the source's body content — only its bookkeeping frontmatter and its location.
-10. **Update `meta/GRAPH_INDEX.md`** with any new pages (grouped by type), **including each page's aliases on its entry** — the index is what makes dedup and name lookup cheap, so an entry without its aliases defeats the purpose. Bump the index's `updated` date.
+9. **Update `meta/GRAPH_INDEX.md`** with any new pages (grouped by type), **including each page's aliases on its entry** — the index is what makes dedup and name lookup cheap, so an entry without its aliases defeats the purpose. Bump the index's `updated` date.
+10. **Close the loop on the source.** Set `ingested: true`, fill `touches:` with everything you produced, then **move the file to `raw/archive/`** (create the folder if missing) — binary and sidecar move together as a pair. Never alter the source's body content — only its bookkeeping frontmatter and its location.
 
 ## Report format
 
@@ -49,4 +49,4 @@ The flags at the bottom are the point — they're what stops the graph from rott
 
 ## If you can't finish
 
-Step 9 is deliberately last: until it runs, the source is still pending and nothing is lost. If you have to stop partway, **leave the source in the root of `raw/` with `ingested: false`**, and report exactly which pages you already wrote. A half-ingested source that still looks pending is recoverable; one that was archived early is not.
+Step 10 is deliberately last: until it runs, the source is still pending and nothing is lost. If you have to stop partway, **leave the source in the root of `raw/` with `ingested: false`**, and report exactly which pages you already wrote. A half-ingested source that still looks pending is recoverable; one that was archived early is not.

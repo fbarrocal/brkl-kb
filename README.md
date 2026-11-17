@@ -6,7 +6,7 @@ A portable, file-based **Knowledge Base** template. Sources go into `raw/`; Clau
 brkl-kb/          ← git root
 ├── CLAUDE.md     ← builder rules: the template is an artifact, not instructions
 ├── README.md     ← this file
-├── kb/           ← the template, v1.3.0 — copy this
+├── kb/           ← the template, v1.3.1 — copy this
 └── docs/         ← decision log, field-test protocol, v1 design record
 ```
 
@@ -25,6 +25,7 @@ brkl-kb/          ← git root
 - **v1.0–v1.1** — *kbcurator*, the original template. Its git history is not in this repository; its design record is, in `docs/handover/`.
 - **v1.2.0** — first release in this repository: the same curator with a new layout (`raw/`, `knowledge/`, `meta/GRAPH_*`) and the hardening developed after v1.1.
 - **v1.3.0** — standalone: `kb/` is the only copy and is edited directly; no generated files, no tooling. Lint checks numbered 1–17.
+- **v1.3.1** — fixes from a stale-reference audit: ingest archives the source as its truly last step, lint check numbers survive Markdown rendering, and cross-references point where they claim.
 
 ## Where the reasoning lives
 

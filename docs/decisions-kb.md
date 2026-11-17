@@ -32,6 +32,17 @@ The knowledge base had been developed inside a larger template's repository (a k
 - **Lint checks renumbered 1–17.** The gaps (14, 19, 20) belonged to checks this template never had.
 - **The v1.0.1 design record was copied into `handover/`,** so this repository needs nothing outside itself.
 
+## v1.3.1 (2026-11-17) — stale-reference audit
+
+A read-only audit of `kb/` found references that had drifted from the files they describe. Fixed together:
+
+- **Ingest: the index update now runs before archiving (steps 9 and 10 swapped).** The "if you can't finish" section rested on archiving being the last act, but the index update ran after it. An interruption between the two left a source archived, so it looked done, while its pages were missing from the index. Now a source that still looks pending is the only sign of an unfinished ingest. That is the state the recovery rule already assumes.
+- **Lint check numbers are written into the text, not as Markdown list markers.** Out-of-sequence markers (1, 2, 3, 8, …) are renumbered by any CommonMark renderer, so in Obsidian or on GitHub #8 showed as "4" and #15 as "10", and stopped matching the pass table and severity bands. The agent reads raw text and wasn't affected; humans were.
+- **Lint #16 cites the right source.** It credited `CLAUDE.md` with naming the "Page X … through edge W" failure mode. That example lives in the query skill; `CLAUDE.md` states the rule (§ Role).
+- **Lint scope and example report match the rules.** Scope now names `raw/archive/` for #17. The Pass A example now lists `raw/` as scanned, since #8 and #12 scan it and the report must say what was scanned.
+- **`GRAPH_SCHEMA.md` default types list the seed's bookkeeping fields** (`created`, `updated`, `curator_notes`). Lint #2 compares fields against § Nodes, so the shorter list invited false drift reports.
+- **README wording:** `.gitattributes` added to the layout; the `.gitignore` description matches the file; "`CLAUDE.md` explains the design in full" became "how it works", because the *why* lives here and does not ship with a copy of `kb/`.
+
 ## Known gaps
 
 - **This template has never been field-run.** `field-test-kb.md` is the protocol.

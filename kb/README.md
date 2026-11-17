@@ -1,6 +1,6 @@
 # Knowledge Base template
 
-**v1.3.0** — a self-curated knowledge graph in plain markdown. Sources go in; typed, cross-referenced knowledge pages come out; questions are answered by navigating the graph, not by vector search.
+**v1.3.1** — a self-curated knowledge graph in plain markdown. Sources go in; typed, cross-referenced knowledge pages come out; questions are answered by navigating the graph, not by vector search.
 
 ## Quick start (Cowork)
 
@@ -24,6 +24,7 @@ your-kb-folder/
 ├── README.md                # this file — start here
 ├── CLAUDE.md                # static rulebook: role, conduct, how to operate, how it works
 ├── .gitignore               # for the later Claude Code + Git step
+├── .gitattributes           # line endings (LF) for the later Git step
 ├── raw/                     # inbox — root holds pending only; ingest archives
 │                            # processed files to raw/archive/
 ├── knowledge/               # node pages, flat; a node's type is a field, not a folder
@@ -79,7 +80,7 @@ With the vault at the root, the machinery (`CLAUDE.md`, `meta/`, …) shows up i
 - **Excluded files (recommended — hides machinery everywhere).** Settings → **Files and links → Excluded files** → add `meta/`, `raw/`, `CLAUDE.md`, `README.md`. This removes them from search, link suggestions, *and* the graph. Drop `raw/` from the list if you want raw inputs visible.
 - **Graph filter (graph-only).** In the graph view's **Filters** panel, type `-path:meta -path:raw`. Only the graph is affected — search and link suggestions still see the machinery.
 
-Both settings are vault config (`.obsidian/app.json` and `.obsidian/graph.json`), and the included `.gitignore` versions vault config while excluding only local UI state (`workspace.json`) — so configure either once, commit, and every clone of the KB inherits it.
+Both settings are vault config (`.obsidian/app.json` and `.obsidian/graph.json`), and the included `.gitignore` versions vault config while excluding only local UI state (the workspace files and cache) — so configure either once, commit, and every clone of the KB inherits it.
 
 Two graph notes: links inside frontmatter render in the core graph as plain, unlabeled lines — so your typed edges do appear natively; for *labeled* edges (seeing `part_of` vs `uses` on the line), use the Graph Link Types or Juggl plugins (table above). And if the graph ever looks too sparse, remember prose `[[wikilinks]]` also draw lines — only the frontmatter fields are the real typed graph.
 
@@ -105,4 +106,4 @@ Since v1.2 this is the same curator with a new layout and two more rounds of har
 ## Two things to know going in
 
 - **This is not local.** Running on Claude sends the *contents* of your notes to Anthropic. Your *files* stay on your disk. For a true air-gap, use a local-model GraphRAG tool instead.
-- **It has a ceiling.** Comfortable to ~150–200 knowledge pages; past that, add an external indexed store. `CLAUDE.md` explains the design in full.
+- **It has a ceiling.** Comfortable to ~150–200 knowledge pages; past that, add an external indexed store. `CLAUDE.md` explains how it works.
